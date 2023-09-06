@@ -27,19 +27,20 @@ export default function Home() {
         handleSubmit: handleSubmitLed} = useForm<FormDataLed>();
     const [currentTemp, setCurrentTemp] = useState('0.0' as string)
     const [currentHumidity, setCurrentHumidity] = useState('0.0' as string)
+    const [currentLight, setCurrentLight] = useState('0.0' as string)
     const [currentColor, setCurrentColor] = useState([0, 0, 0, 0] as number[])
     const [currentIp, setCurrentIp] = useState('' as string)
     const [isIpSet, setIsIpSet] = useState(false as boolean)
 
-    let timerId = setInterval(getData, 5000);
+    let timerId = setInterval(getData, 15000);
 
     setTimeout(() => {
         clearInterval(timerId);
-    }, 10000);
+    }, 30000);
 
     function getData() {
         if (isIpSet) {
-            getCurrentTemp().then(() => getCurrentHumi())
+            getCurrentTemp().then(() => getCurrentHumidity())
 
             console.log("get data")
         }
@@ -123,7 +124,7 @@ export default function Home() {
         }
     }
 
-    const getCurrentHumi = async () => {
+    const getCurrentHumidity = async () => {
         try {
             let options = {
                 method: 'GET',
@@ -134,6 +135,20 @@ export default function Home() {
             setCurrentHumidity(response.data.value.toString())
         } catch (error: any) {
             alert("Error al obtener la humedad: " + error);
+        }
+    }
+
+    const getCurrentLight = async () => {
+        try {
+            let options = {
+                method: 'GET',
+                url: `http://${currentIp}/light`,
+            };
+            const response = await axios.request(options).then((response) => response as any);
+            console.log(response)
+            setCurrentLight(response.data.value.toString())
+        } catch (error: any) {
+            alert("Error al obtener la luz: " + error);
         }
     }
 
@@ -228,7 +243,7 @@ export default function Home() {
                                 href="#"
                                 onClick={(event) => {
                                     event.preventDefault()
-                                    getCurrentHumi()
+                                    getCurrentHumidity()
                                 }}
                             >
                                 <div className="home__main_quickActionsButton">
@@ -255,6 +270,31 @@ export default function Home() {
                                         height={25}
                                         priority
                                     /><span className="text-lg font-bold">Humedad</span>
+                                </div>
+                            </a>
+                        }
+                    </div>
+                </div>
+                <div className={"pt-4 pl-6 home__main-quickActionsContainer"}>
+                    <div className={"home__main-quickActionsItem"}>
+                        {isIpSet ?
+                            <a
+                                href="#"
+                                onClick={(event) => {
+                                    event.preventDefault()
+                                    getCurrentLight()
+                                }}
+                            >
+                                <div className="home__main_quickActionsButton">
+                                    <span className="text-lg font-bold">{currentLight} Lum</span>
+                                    <span className="text-lg font-bold">Luz</span>
+                                </div>
+                            </a>
+                            :
+                            <a>
+                                <div className="home__main_quickActionsButton">
+                                    <span className="text-lg font-bold">{currentLight} Lum</span>
+                                    <span className="text-lg font-bold">Luz</span>
                                 </div>
                             </a>
                         }
